@@ -1,0 +1,19 @@
+# description on the column names
+hash - commit hash
+date - date commit was made
+bug - url to crbug.com for the commit
+review - url to gerrit for the commit
+lines_added - added LOC for the commit
+lines_removed - removed LOC for the commit
+num_revisions - number of revisions made appeared on gerrit (e.g. Patch1, Patch2 count as 2 revisions)
+time_uploaded - time the first patch was uploaded (coincide with date)
+time_pushed - time the last patch was pushed to master
+is_unittested - if the commit was unit tested
+is_unittest - if the commit was a unit test change
+num_msg - number of messages appeared on gerrit (different from comments)
+time_plus2 - time when +2 happened (if multiple, take the last one)
+num_unresolved_comments - number of unresolved comments appeared on gerrit
+category - manual issue report classification category
+is_buggy - if the issue report was indeed describing a bug (based on manual classification)
+researcher1 - first researcher looking at the issue report
+researcher2 - second researcher looking at the issue report
