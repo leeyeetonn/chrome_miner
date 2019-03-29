@@ -186,7 +186,6 @@ def get_gerrit_stat(repo, cmit, changeid):
     gerrit_stats = {}
     for t in targets:
         query = build_query(repo, changeid, t)
-        print(query)
 
         # get response from gerrit
         res_json = proc_query(query)
