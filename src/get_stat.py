@@ -51,6 +51,17 @@ def do_git_show(repo, cmit_hash):
         return outline
 
 
+def get_changed_fnames(repo, cmit_hash):
+    with cd(repo):
+        cmd = ['git', 'show', '--pretty=format:', '--name-only', cmit_hash]
+        cp = subprocess.run(cmd, capture_output=True, universal_newlines=True)
+        if cp.returncode != 0:
+            print('Warning: extract unit test from commit %s failed' % cmit_hash)
+            return
+        outline = cp.stdout.rstrip('\n').split('\n')
+        return outline
+
+
 def get_change_id(repo, cmit_hash):
     cmd = ['bash', 'get_changeid.sh', cmit_hash, repo]
     cp = subprocess.run(cmd, capture_output=True, universal_newlines=True)
@@ -201,6 +212,27 @@ def get_gerrit_stat(repo, cmit, changeid):
     return gerrit_stats
 
 
+def get_unit_test(fnames):
+    assert(fnames is not None)
+    test_flag = False
+    nontest_flag = False
+
+    for f in fnames:
+        if re.search('.*unittest.*', f):
+            test_flag = True
+        else:
+            nontest_flag = True
+
+    is_unittested = False
+    is_unittest = False
+    if test_flag and nontest_flag:
+        is_unittested = True
+    elif test_flag and not nontest_flag:
+        is_unittest = True
+
+    return is_unittested, is_unittest
+
+
 def main():
     parser = argparse.ArgumentParser(description='Take input commits and get related stats')
     parser.add_argument('infile', type=str, help='input file path containing the list of commits sha')
@@ -218,11 +250,19 @@ def main():
     num_revision_list = []
     t_plus2_list = []
     num_unresolved_list = []
+    is_unittested_list = []
+    is_unittest_list = []
     for index, cmit in enumerate(cmit_list):
         stat_list = do_git_show(args.repo, cmit)
         added_loc, del_loc = calc_stat(stat_list)
         added_loc_list.append(added_loc)
         del_loc_list.append(del_loc)
+
+        # unit test related
+        files_changed = get_changed_fnames(args.repo, cmit)
+        is_unittested, is_unittest = get_unit_test(files_changed)
+        is_unittested_list.append(is_unittested)
+        is_unittest_list.append(is_unittest)
 
         # get changeid from commit
         changeid = get_change_id(args.repo, cmit)
@@ -253,6 +293,8 @@ def main():
     df['time_plus2'] = t_plus2_list
     df['num_revisions'] = num_revision_list
     df['num_unresolved_comments'] = num_unresolved_list
+    df['is_unittested'] = is_unittested_list
+    df['is_unittest_only'] = is_unittest_list
 
     # finished getting added LOC and removed LOC
     df.to_csv(args.outfile)
