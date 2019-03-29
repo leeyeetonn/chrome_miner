@@ -1,4 +1,4 @@
-hash,date,bug,review,lines_added,lines_removed,num_revisions,time_uploaded,time_pushed,is_unittested,is_unittest,num_msg,time_plus2,num_unresolved_comments,category,is_buggy,researcher1,researcher2
+hash,date,bug,review,lines_added,lines_removed,num_revisions,time_uploaded,time_pushed,is_unittested,is_unittest_only,num_msg,time_plus2,num_unresolved_comments,category,is_buggy,researcher1,researcher2
 a7e42aae3ca707217fa9af31b7e63259a00ed7b8,2018-03-07,crbug.com/782499,https://chromium-review.googlesource.com/963869,8,0,3,2018-03-15 04:34:32,2018-03-19 04:10:53,,,15,2018-03-19 00:34:35,1,,,,
 82ac84383e722d482297cfd7f2453e5f6786c687,2017-10-25,crbug.com/757625,https://chromium-review.googlesource.com/738937,72,1,2,2017-10-26 02:18:51,2017-11-02 18:07:48,,,17,2017-10-30 22:29:50,1,,,,
 1f9741a8fdcbeb665962dc8c2fa6ca89fa90f33e,2018-03-16,crbug.com/757625,https://chromium-review.googlesource.com/981048,4,0,3,2018-03-26 17:13:24,2018-04-12 01:10:18,,,13,2018-04-10 09:11:56,1,,,,
