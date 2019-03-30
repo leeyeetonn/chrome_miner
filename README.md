@@ -17,6 +17,7 @@ python get_stat.py <input_csv> <repo_path> <output_name>
 
 ### TODO
 1. get data for is\_unittested and is\_unittest
-2. docker for reproducibility
+2. docker for reproducibility (probably unneeded, but a nice touch if we have time)
 3. current stats are for selected bug fixing commits; 
+4. colin - post code for commit parsing
 find corresponding bug-introducing commit and get related stats
