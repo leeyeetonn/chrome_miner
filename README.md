@@ -24,6 +24,12 @@ The generated box plots and aggregated data will be stored in `result` folder
 * see `table_legend` for descriptions of column names
 
 
+### Get More Analysis Method
+To develop more analysis method, add methods to `class IssueReport`.
+This class can be used to separate different categories (i.e. BUG, RFE, etc.)
+OR to separate `is_unittested = True` from `is_unittested = False`, etc.
+
+
 ### TODO
 2. docker for reproducibility (probably unneeded, but a nice touch if we have time)
 3. current stats are for selected bug fixing commits; 
