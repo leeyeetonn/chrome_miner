@@ -184,6 +184,13 @@ def extract_from_comments(injson):
     return stats
 
 
+def extract_meta(injson):
+    assert(injson is not None or len(injson) != 0)
+    stats = {}
+    stats['num_comments'] = injson["total_comment_count"]
+    return stats
+
+
 def extract_stats(injson, target):
     assert(injson is not None or len(injson) != 0)
     if target == 'messages':
@@ -208,6 +215,16 @@ def get_gerrit_stat(repo, cmit, changeid):
 
         # will override if key overlaps, but no overlap expected
         gerrit_stats.update(stats)
+
+    # quick fix to get number of comments
+    # TODO: needs refactor
+    query = build_query(repo, changeid, '')
+    res_json = proc_query(query)
+    if res_json is None:
+        return gerrit_stats
+
+    stats = extract_meta(res_json)
+    gerrit_stats.update(stats)
 
     return gerrit_stats
 
@@ -252,6 +269,7 @@ def main():
     num_unresolved_list = []
     is_unittested_list = []
     is_unittest_list = []
+    num_comments_list = []
     for index, cmit in enumerate(cmit_list):
         stat_list = do_git_show(args.repo, cmit)
         added_loc, del_loc = calc_stat(stat_list)
@@ -277,6 +295,7 @@ def main():
             num_revision_list.append(-1)
             t_plus2_list.append(-1)
             num_unresolved_list.append(-1)
+            num_comments_list.append(-1)
         else:
             num_msg_list.append(gerrit_stats['num_msg'])
             t_submit_list.append(gerrit_stats['submit_time'])
@@ -284,6 +303,7 @@ def main():
             num_revision_list.append(gerrit_stats['num_revision'])
             t_plus2_list.append(gerrit_stats['plus_2'])
             num_unresolved_list.append(gerrit_stats['unresolved'])
+            num_comments_list.append(gerrit_stats['num_comments'])
 
     df['lines_added'] = added_loc_list
     df['lines_removed'] = del_loc_list
@@ -295,6 +315,7 @@ def main():
     df['num_unresolved_comments'] = num_unresolved_list
     df['is_unittested'] = is_unittested_list
     df['is_unittest_only'] = is_unittest_list
+    df['num_comments'] = num_comments_list
 
     # finished getting added LOC and removed LOC
     df.to_csv(args.outfile)
