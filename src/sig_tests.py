@@ -5,7 +5,7 @@ import pandas
 import sys
 from scipy import stats
 
-ISSUE_TYPES = ['BUG', 'RFE', 'IMPR', 'REFAC', 'OTHER']
+ISSUE_TYPES = ['BUG', 'RFE', 'IMPR', 'REFAC']
 
 
 def anova(data, d_var, i_var, categories):
@@ -242,11 +242,9 @@ def main(argv):
     ut_ratio = total_unittested / len(ut_data)
 
     for c in ISSUE_TYPES:
-        # Drop other since it has a frequency of 0
-        if (c != "OTHER"):
-            cat_data = ut_data[ut_data['final_category'] == c]['is_unittested']
-            unittest_cats.append(cat_data.sum())
-            unittest_expt.append(int(len(cat_data) * ut_ratio)) 
+        cat_data = ut_data[ut_data['final_category'] == c]['is_unittested']
+        unittest_cats.append(cat_data.sum())
+        unittest_expt.append(int(len(cat_data) * ut_ratio)) 
 
     chi_sqr, p_value = stats.chisquare(unittest_cats, unittest_expt)
     print("\tchisqr={}, p={}".format(chi_sqr, p_value))
