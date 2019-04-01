@@ -8,3 +8,8 @@ class IssueReport:
         series = self.data['upload_push_timediff']
         return series.median()
 
+    # get the ratio of unit-tested commits
+    def unittest_ratio(self):
+        col = self.data['is_unittested']
+        ratio = col.value_counts()[True] / col.size
+        return round(ratio, 4)

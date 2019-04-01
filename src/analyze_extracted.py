@@ -86,11 +86,13 @@ def analyze_each_category(df):
     bug_reports = IssueReport('Bug', type_bug_data)
 
     print('BUG median upload -> push timediff = ', bug_reports.median_upush_timediff())
+    print('BUG unit test ratio = ', bug_reports.unittest_ratio())
 
     # RFE category
     type_feature_data = df.loc[df['final_category'] == 'RFE']
     feature_reports = IssueReport('RFE', type_feature_data)
     print('RFE median upload -> push timediff = ', feature_reports.median_upush_timediff())
+    print('RFE unit test ratio = ', feature_reports.unittest_ratio())
 
 
 def main():
