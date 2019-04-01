@@ -1,4 +1,4 @@
-# description on the column names
+# description on the column names of all_aggregated_result.csv
 hash - commit hash
 date - date commit was made
 bug - url to crbug.com for the commit
@@ -9,11 +9,16 @@ num_revisions - number of revisions made appeared on gerrit (e.g. Patch1, Patch2
 time_uploaded - time the first patch was uploaded (coincide with date)
 time_pushed - time the last patch was pushed to master
 is_unittested - if the commit was unit tested
-is_unittest - if the commit was a unit test change
+is_unittest_only - if the commit was a unit test change
 num_msg - number of messages appeared on gerrit (different from comments)
 time_plus2 - time when +2 happened (if multiple, take the last one)
 num_unresolved_comments - number of unresolved comments appeared on gerrit
-category - manual issue report classification category
-is_buggy - if the issue report was indeed describing a bug (based on manual classification)
+assigned_category - issue report type assigned on crbugs.com
+manual_category - manual issue report classification category by researcher1
 researcher1 - first researcher looking at the issue report
 researcher2 - second researcher looking at the issue report
+researcher2_category - issue report classification category by researcher2
+final_category - finalized category after resolving any disagreement between researcher1 and researcher2
+disagreement - whether the manual classification initially had a disagreement (used for inter-rater reliability)
+lines_modified - combine lines_added and lines_removed
+upload_push_timediff - the time difference between uploading the first patch to the time patch was pushed to master (currently in minutes)
