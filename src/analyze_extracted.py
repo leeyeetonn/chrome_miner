@@ -95,6 +95,14 @@ def analyze_each_category(df):
     print('RFE unit test ratio = ', feature_reports.unittest_ratio())
 
 
+def clean_null(res_dir, df):
+    cleandf = df[df['final_category'].notnull()]
+    cleandf = cleandf[cleandf['assigned_category'].notnull()]
+    cleandf_outpath = res_dir + '/' + 'clean_null.csv'
+    cleandf.to_csv(cleandf_outpath, na_rep='NULL')
+    return cleandf
+
+
 def main():
     parser = argparse.ArgumentParser(description='Read an extracted csv and analyze it')
     parser.add_argument('infile', type=str, help='input csv containing extracted stats')
@@ -103,6 +111,9 @@ def main():
 
     # read extracted stats
     df = read_input(args.infile)
+
+    # remove issue reports that are not accessible
+    df = clean_null(args.res_dir, df)
 
     # get unique issue reports and calculate inter-rater reliability
     agree_perc = get_rater_relibility(df)
