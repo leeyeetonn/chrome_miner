@@ -25,6 +25,7 @@ The generated box plots and aggregated data will be stored in `result` folder
 
 
 ### TODO
-2. docker for reproducibility
+2. docker for reproducibility (probably unneeded, but a nice touch if we have time)
 3. current stats are for selected bug fixing commits; 
+4. colin - post code for commit parsing
 find corresponding bug-introducing commit and get related stats
