@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 from scipy import stats
 from datetime import datetime
+from issue_report import IssueReport
 
 # list of columns we want box plot
 BOX_COLUMNS = ['lines_added', 'lines_removed', 'lines_modified', 'num_revisions',
@@ -79,6 +80,19 @@ def get_lines_modified(df):
     return lines_modified
 
 
+def analyze_each_category(df):
+    # BUG category
+    type_bug_data = df.loc[df['final_category'] == 'BUG']
+    bug_reports = IssueReport('Bug', type_bug_data)
+
+    print('BUG median upload -> push timediff = ', bug_reports.median_upush_timediff())
+
+    # RFE category
+    type_feature_data = df.loc[df['final_category'] == 'RFE']
+    feature_reports = IssueReport('RFE', type_feature_data)
+    print('RFE median upload -> push timediff = ', feature_reports.median_upush_timediff())
+
+
 def main():
     parser = argparse.ArgumentParser(description='Read an extracted csv and analyze it')
     parser.add_argument('infile', type=str, help='input csv containing extracted stats')
@@ -100,6 +114,9 @@ def main():
 
     res_file_path = args.res_dir + '/' + 'aggregated_result.csv'
     df.to_csv(res_file_path, na_rep='NA')
+
+    # analyze for each category
+    analyze_each_category(df)
 
     # get box plots
     for col in BOX_COLUMNS:
