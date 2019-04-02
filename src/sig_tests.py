@@ -8,6 +8,14 @@ from scipy import stats
 ISSUE_TYPES = ['BUG', 'RFE', 'IMPR', 'REFAC']
 
 
+def get_medians(data, var, categories):
+    medians = []
+    for c in categories:
+        medians.append((c, data[data['final_category'] == c][var].median()))
+
+    return medians
+
+
 def anova(data, d_var, i_var, categories):
     """
     Perform an ANOVA
@@ -64,7 +72,7 @@ def correlate(data, x_var, y_var):
     """
     x = data[x_var]
     y = data[y_var]
-    return stats.pearsonr(x, y)
+    return stats.spearmanr(x, y)
 
 
 def main(argv):
@@ -80,12 +88,38 @@ def main(argv):
 
     data = pandas.read_csv(input_file)
 
-    # ANOVA issue type -> number of revisions
-    print("issue type -> change size")
+    # ANOVA issue type -> lines changed
+    print("issue type -> lines changed")
     f_value, p_value = anova(
             data, 'lines_modified', 'final_category', ISSUE_TYPES)
     results = pairwise(
             data, 'lines_modified', 'final_category', ISSUE_TYPES)
+    print("\tANOVA:")
+    print("\t\tF={}, p={}".format(f_value, p_value))
+    print("\tPairwise Comparisons:")
+    for r in results:
+        print("\t\t{} {} U={}, p={}".format(r[0], r[1], r[2], r[3]))
+    print()
+
+    # ANOVA issue type -> lines added
+    print("issue type -> lines added")
+    f_value, p_value = anova(
+            data, 'lines_added', 'final_category', ISSUE_TYPES)
+    results = pairwise(
+            data, 'lines_added', 'final_category', ISSUE_TYPES)
+    print("\tANOVA:")
+    print("\t\tF={}, p={}".format(f_value, p_value))
+    print("\tPairwise Comparisons:")
+    for r in results:
+        print("\t\t{} {} U={}, p={}".format(r[0], r[1], r[2], r[3]))
+    print()
+
+    # ANOVA issue type -> lines removed
+    print("issue type -> lines removed")
+    f_value, p_value = anova(
+            data, 'lines_removed', 'final_category', ISSUE_TYPES)
+    results = pairwise(
+            data, 'lines_removed', 'final_category', ISSUE_TYPES)
     print("\tANOVA:")
     print("\t\tF={}, p={}".format(f_value, p_value))
     print("\tPairwise Comparisons:")
@@ -175,13 +209,13 @@ def main(argv):
     print()
 
     # Correlate lines added with time to submit
-    print("correlate lines added w/ number of comments")
+    print("correlate lines added w/ number of time to submit")
     r_value, p_value = correlate(data, 'lines_added', 'upload_push_timediff')
     print("\tr={}, p={}".format(r_value, p_value))
     print()
 
     # Correlate lines removed with time to submit
-    print("correlate lines removed w/ number of comments")
+    print("correlate lines removed w/ number of time to submit")
     r_value, p_value = correlate(data, 'lines_removed', 'upload_push_timediff')
     print("\tr={}, p={}".format(r_value, p_value))
     print()
@@ -211,6 +245,9 @@ def main(argv):
             ut_data[ut_data['is_unittested'] == True]['upload_push_timediff'],
             ut_data[ut_data['is_unittested'] == False]['upload_push_timediff'])
     print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['upload_push_timediff'].median(),
+            ut_data[ut_data['is_unittested'] == False]['upload_push_timediff'].median()))
     print()
 
     # Number of comments based on whether a change is unit tested
@@ -220,6 +257,9 @@ def main(argv):
             ut_data[ut_data['is_unittested'] == True]['num_comments'],
             ut_data[ut_data['is_unittested'] == False]['num_comments'])
     print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['num_comments'].median(),
+            ut_data[ut_data['is_unittested'] == False]['num_comments'].median()))
     print()
 
     # Remove changes that are only unit tests
@@ -231,6 +271,9 @@ def main(argv):
             ut_data[ut_data['is_unittested'] == True]['num_revisions'],
             ut_data[ut_data['is_unittested'] == False]['num_revisions'])
     print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['num_revisions'].median(),
+            ut_data[ut_data['is_unittested'] == False]['num_revisions'].median()))
     print()
 
     # Unit tested based on issue type
@@ -248,7 +291,19 @@ def main(argv):
 
     chi_sqr, p_value = stats.chisquare(unittest_cats, unittest_expt)
     print("\tchisqr={}, p={}".format(chi_sqr, p_value))
+    print()
 
+    lines_median = get_medians(data, 'lines_removed', ISSUE_TYPES)
+    print("lines removed medians:")
+    for m in lines_median:
+        print("{}: {}".format(m[0], m[1]))
+    print()
+
+    print("revisions medians:")
+    revisions_median = get_medians(data, 'num_revisions', ISSUE_TYPES)
+    for m in revisions_median:
+        print("{}: {}".format(m[0], m[1]))
+    print()
 
 if __name__ == "__main__":
     """
