@@ -276,6 +276,39 @@ def main(argv):
             ut_data[ut_data['is_unittested'] == False]['num_revisions'].median()))
     print()
 
+    # Lines modified based on whether a change is unit tested
+    print("number of lines modified based on whether a change is unit tested")
+    u_value, p_value = stats.mannwhitneyu(
+            ut_data[ut_data['is_unittested'] == True]['lines_modified'],
+            ut_data[ut_data['is_unittested'] == False]['lines_modified'])
+    print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['lines_modified'].median(),
+            ut_data[ut_data['is_unittested'] == False]['lines_modified'].median()))
+    print()
+
+    # Lines added based on whether a change is unit tested
+    print("number of lines added based on whether a change is unit tested")
+    u_value, p_value = stats.mannwhitneyu(
+            ut_data[ut_data['is_unittested'] == True]['lines_added'],
+            ut_data[ut_data['is_unittested'] == False]['lines_added'])
+    print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['lines_added'].median(),
+            ut_data[ut_data['is_unittested'] == False]['lines_added'].median()))
+    print()
+
+    # Lines removed based on whether a change is unit tested
+    print("number of lines removed based on whether a change is unit tested")
+    u_value, p_value = stats.mannwhitneyu(
+            ut_data[ut_data['is_unittested'] == True]['lines_removed'],
+            ut_data[ut_data['is_unittested'] == False]['lines_removed'])
+    print("\tU={}, p={}".format(u_value, p_value))
+    print("\ttested: {} not tested: {}".format(
+            ut_data[ut_data['is_unittested'] == True]['lines_removed'].median(),
+            ut_data[ut_data['is_unittested'] == False]['lines_removed'].median()))
+    print()
+
     # Unit tested based on issue type
     print("unit tested based on issue type")
     unittest_cats = []
