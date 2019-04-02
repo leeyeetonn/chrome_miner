@@ -15,21 +15,23 @@ BOX_COLUMNS = ['lines_added', 'lines_removed', 'lines_modified', 'num_revisions'
                'num_msg', 'num_unresolved_comments', 'upload_push_timediff']
 
 TITLE_SIZE = 28
-XLAB_SIZE = 25
-YLAB_SIZE = 25
+XLAB_SIZE = 28
+YLAB_SIZE = 28
 FIG_SIZE = (16, 9)
-TICK_SIZE = 20
-BAR_NUM_SIZE = 20
+TICK_SIZE = 25
+BAR_NUM_SIZE = 22
 
 CAT_MAP = {'Feature': 'RFE', 'Bug': 'BUG'}
 
-COL_MAP = {'lines_added': 'added LOC for the commit',
-           'lines_removed': 'removed LOC for the commit',
-           'num_revisions': 'number of revisions made before push',
-           'lines_modified': 'lines modified',
-           'num_comments': 'number of comments from reviewers',
-           'upload_push_timediff': 'time diff from upload to push'
+COL_MAP = {'lines_added': 'Added LOC',
+           'lines_removed': 'Removed LOC',
+           'num_revisions': 'Revisions',
+           'lines_modified': 'Modified LOC',
+           'num_comments': 'Code Review Comments',
+           'upload_push_timediff': 'Time in Review'
            }
+
+UTEST_MAP = {'unittested': 'Unit Tested', 'non_unittested': 'Not Unit Tested'}
 
 
 def test_fexist(fpath):
@@ -112,24 +114,15 @@ def to_reports(col_name, col_value, df):
 def to_category_reports(df):
     # RFE
     feature_reports = to_reports('final_category', 'RFE', df)
-    print('RFE median upload -> push timediff = ', feature_reports.median_upush_timediff())
-    print('RFE unit test ratio = ', feature_reports.unittest_ratio())
 
     # BUG category
     bug_reports = to_reports('final_category', 'BUG', df)
 
-    print('BUG median upload -> push timediff = ', bug_reports.median_upush_timediff())
-    print('BUG unit test ratio = ', bug_reports.unittest_ratio())
-
     # REFAC category
     refac_reports = to_reports('final_category', 'REFAC', df)
-    print('REFAC median upload -> push timediff = ', refac_reports.median_upush_timediff())
-    print('REFAC unit test ratio = ', refac_reports.unittest_ratio())
 
     # IMPR category
     impr_reports = to_reports('final_category', 'IMPR', df)
-    print('IMPR median upload -> push timediff = ', impr_reports.median_upush_timediff())
-    print('IMPR unit test ratio = ', impr_reports.unittest_ratio())
 
     reports = {
         "RFE": feature_reports,
@@ -147,9 +140,9 @@ def plot_num_revisions(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Number of revisions for each category', fontsize=TITLE_SIZE)
+    #ax.set_title('Number of revisions for each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("number of revisions", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Revisions", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'revisions_vs_class.png'
@@ -164,10 +157,10 @@ def plot_upload_push_timediff(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Time to stay in code review', fontsize=TITLE_SIZE)
+    #ax.set_title('Time to stay in code review', fontsize=TITLE_SIZE)
     ax.set_yticks(np.arange(0, ymax, 30))
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("time span (days)", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Time in Review (days)", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'timediff_vs_class.png'
@@ -184,10 +177,10 @@ def plot_unittest_ratio(res_dir, reports):
     ind = np.arange(len(reports))
 
     bars = plt.bar(ind, data)
-    ax.set_title('Percentage of unit tested commits in each category', fontsize=TITLE_SIZE)
+    #ax.set_title('Percentage of unit tested commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticks(ind)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("ratio", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Unit Tested Ratio", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     for c, b in enumerate(bars):
@@ -206,9 +199,9 @@ def plot_lines_modified(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC modified for commits in each category', fontsize=TITLE_SIZE)
+    #ax.set_title('LOC modified for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Modified LOC", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locmod_vs_class.png'
@@ -222,9 +215,9 @@ def plot_lines_removed(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC removed for commits in each category', fontsize=TITLE_SIZE)
+    #ax.set_title('LOC removed for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Removed LOC", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locrm_vs_class.png'
@@ -238,9 +231,9 @@ def plot_lines_added(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC added for commits in each category', fontsize=TITLE_SIZE)
+    #ax.set_title('LOC added for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Added LOC", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locadd_vs_class.png'
@@ -311,9 +304,10 @@ def plot_ifunittested_timediff(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('time span from upload to push for unittested and non-unittested commits', fontsize=TITLE_SIZE)
-    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("days", fontsize=YLAB_SIZE)
+    #ax.set_title('time span from upload to push for unittested and non-unittested commits', fontsize=TITLE_SIZE)
+    labels = [UTEST_MAP[k] for k in reports.keys()]
+    ax.set_xticklabels(labels, fontsize=XLAB_SIZE)
+    ax.set_ylabel("Time in Review (days)", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'timediff_vs_utest.png'
@@ -328,9 +322,10 @@ def plot_ifunittested_num_comments(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Number of comments for unittested and non-unittested commits', fontsize=TITLE_SIZE)
-    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("num of comments", fontsize=YLAB_SIZE)
+    #ax.set_title('Number of comments for unittested and non-unittested commits', fontsize=TITLE_SIZE)
+    labels = [UTEST_MAP[k] for k in reports.keys()]
+    ax.set_xticklabels(labels, fontsize=XLAB_SIZE)
+    ax.set_ylabel("Code Review Comments", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'comments_vs_utest.png'
@@ -345,9 +340,10 @@ def plot_ifunittested_num_revisions(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Number of revisions for unittested and non-unittested commits', fontsize=TITLE_SIZE)
-    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
-    ax.set_ylabel("num of revisions", fontsize=YLAB_SIZE)
+    #ax.set_title('Number of revisions for unittested and non-unittested commits', fontsize=TITLE_SIZE)
+    labels = [UTEST_MAP[k] for k in reports.keys()]
+    ax.set_xticklabels(labels, fontsize=XLAB_SIZE)
+    ax.set_ylabel("Revisions", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'revisions_vs_utest.png'
@@ -381,6 +377,7 @@ def get_scatter_plots(res_dir, df):
     scatter_plot(res_dir, 'lines_modified', 'LOC', 'num_comments', '', df)
     scatter_plot(res_dir, 'lines_modified', 'LOC', 'num_revisions', '', df)
     scatter_plot(res_dir, 'lines_modified', 'LOC', 'upload_push_timediff', 'days', df)
+    scatter_plot(res_dir, 'lines_added', 'LOC', 'upload_push_timediff', 'days', df)
     scatter_plot(res_dir, 'lines_added', 'LOC', 'num_comments', '', df)
     scatter_plot(res_dir, 'num_revisions', '', 'upload_push_timediff', 'days', df)
     scatter_plot(res_dir, 'num_comments', '', 'upload_push_timediff', 'days', df)
@@ -427,10 +424,10 @@ def plot_orig_category(res_dir, df):
     ind = np.arange(len(assign_cats))
 
     bars = plt.bar(ind, data)
-    ax.set_title('Number of issue reports in each assigned category', fontsize=TITLE_SIZE)
+    #ax.set_title('Number of issue reports in each assigned category', fontsize=TITLE_SIZE)
     ax.set_xticks(ind)
     ax.set_xticklabels(cat_index, fontsize=XLAB_SIZE)
-    ax.set_ylabel("number of issue reports", fontsize=YLAB_SIZE)
+    ax.set_ylabel("Issue Reports", fontsize=YLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     for c, b in enumerate(bars):
@@ -465,10 +462,10 @@ def plot_misclass_for(cat, right_class, mis_class, res_dir):
 
     # horizontal bar
     bars = plt.barh(ind, perc)
-    ax.set_title('Reports originally filled as {}'.format(cat), fontsize=TITLE_SIZE)
+    #ax.set_title('Reports originally filled as {}'.format(cat), fontsize=TITLE_SIZE)
     ax.set_yticks(ind)
     ax.set_yticklabels(cat_index, fontsize=YLAB_SIZE)
-    ax.set_xlabel("classification ratio", fontsize=XLAB_SIZE)
+    ax.set_xlabel("Classification Ratio", fontsize=XLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
 
     for c, b in enumerate(bars):
@@ -491,7 +488,8 @@ def plot_misclassification(res_dir, df):
             continue
         right_perc = right_class.size / (right_class.size + mis_class.size)
         mis_perc = mis_class.size / (right_class.size + mis_class.size)
-
+        print('For %s, %.4f were correctly classified' % (cat, right_perc))
+        print('\t %.4f were incorrectly classified' % (mis_perc))
         plot_misclass_for(cat, right_class, mis_class, res_dir)
 
 
