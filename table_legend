@@ -22,3 +22,4 @@ final_category - finalized category after resolving any disagreement between res
 disagreement - whether the manual classification initially had a disagreement (used for inter-rater reliability)
 lines_modified - combine lines_added and lines_removed
 upload_push_timediff - the time difference between uploading the first patch to the time patch was pushed to master (currently in minutes)
+num_comments - number of comments from reviewers
