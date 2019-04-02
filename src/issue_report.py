@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-
-
 class IssueReport:
     def __init__(self, report_type, data):
         self.type = report_type    # type include RFE, BUG, REFAC

@@ -214,11 +214,9 @@ def plot_lines_added(reports):
     plt.show()
 
 
-def clean_null(res_dir, df):
+def clean_null(df):
     cleandf = df[df['final_category'].notnull()]
     cleandf = cleandf[cleandf['assigned_category'].notnull()]
-    cleandf_outpath = res_dir + '/' + 'clean_null.csv'
-    cleandf.to_csv(cleandf_outpath, na_rep='NULL')
     return cleandf
 
 
@@ -304,24 +302,12 @@ def plot_ifunittested_num_revisions(reports):
     plt.show()
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Read an extracted csv and analyze it')
-    parser.add_argument('infile', type=str, help='input csv containing extracted stats')
-    parser.add_argument('res_dir', type=str, help='result directory')
-    args = parser.parse_args()
-
-    # read extracted stats
-    df = read_input(args.infile)
-
+def preprocess(res_dir, df):
     # drop "OTHER", these are all just git merges
     df = df[df['final_category'] != 'OTHER']
 
     # remove issue reports that are not accessible
-    df = clean_null(args.res_dir, df)
-
-    # get unique issue reports and calculate inter-rater reliability
-    agree_perc = get_rater_relibility(df)
-    print('Percentage of agreement: %.4f' % agree_perc)
+    df = clean_null(df)
 
     df['lines_modified'] = get_lines_modified(df)
 
@@ -330,11 +316,13 @@ def main():
     df['upload_push_timediff'] = tdelta
 
     # aggregated_result.csv will be the final data for all analysis
-    res_file_path = args.res_dir + '/' + 'aggregated_result.csv'
+    res_file_path = res_dir + '/' + 'aggregated_result.csv'
     df.to_csv(res_file_path, na_rep='NA')
 
-    # START ANALYSIS
-    # scatter plot
+    return df
+
+
+def get_scatter_plots(df):
     pairwise_corr_plot(df)
 
     scatter_plot('lines_modified', 'LOC', 'num_comments', '', df)
@@ -344,25 +332,26 @@ def main():
     scatter_plot('num_revisions', '', 'upload_push_timediff', 'days', df)
     scatter_plot('num_comments', '', 'upload_push_timediff', 'days', df)
     scatter_plot('num_comments', '', 'num_revisions', '', df)
+    return
 
-    # plot num_revisions distribution across different category
+
+def get_class_plots(df):
     reports = to_category_reports(df)
 
     # box plot for num_revisions for each category
     plot_num_revisions(reports)
-
     # box plot for upload -> push timediff
     plot_upload_push_timediff(reports)
-
     # bar chart for unittest ratio
     plot_unittest_ratio(reports)
-
     # lines_modified for each category
     plot_lines_modified(reports)
     plot_lines_added(reports)
     plot_lines_removed(reports)
+    return
 
-    # unit test vs not unit tested
+
+def get_unit_plots(df):
     reports = get_unittested_vs_non(df)
     # upload_push_timediff vs. unittested/non_unittested
     plot_ifunittested_timediff(reports)
@@ -370,6 +359,34 @@ def main():
     plot_ifunittested_num_comments(reports)
     # num_revisions vs. unittested/non_unittested
     plot_ifunittested_num_revisions(reports)
+    return
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Read an extracted csv and analyze it')
+    parser.add_argument('infile', type=str, help='input csv containing extracted stats')
+    parser.add_argument('res_dir', type=str, help='result directory')
+    args = parser.parse_args()
+
+    # read extracted stats
+    df = read_input(args.infile)
+
+    # pre-process data
+    df = preprocess(args.res_dir, df)
+
+    # get unique issue reports and calculate inter-rater reliability
+    agree_perc = get_rater_relibility(df)
+    print('Percentage of agreement: %.4f' % agree_perc)
+
+    # ====== START ANALYSIS ======
+    # scatter plot
+    get_scatter_plots(df)
+
+    # distribution across manual classification category
+    get_class_plots(df)
+
+    # distribution in unit test vs not unit tested
+    get_unit_plots(df)
 
     # get box plots
     for col in BOX_COLUMNS:
