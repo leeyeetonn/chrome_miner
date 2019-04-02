@@ -59,6 +59,7 @@ def make_box_plots(res_dir, series):
     ax.boxplot(series.values)
     image_name = res_dir + "/" + name + ".png"
     plt.savefig(image_name)
+    plt.close()
     return
 
 
@@ -125,7 +126,7 @@ def to_category_reports(df):
     return reports
 
 
-def plot_num_revisions(reports):
+def plot_num_revisions(res_dir, reports):
     data = [r.num_revisions() for r in reports.values()]
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
@@ -135,10 +136,12 @@ def plot_num_revisions(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("number of revisions", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'revisions_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_upload_push_timediff(reports):
+def plot_upload_push_timediff(res_dir, reports):
     data = [r.upush_timediff() for r in reports.values()]
 
     ymax = max([i.max() for i in data])
@@ -150,10 +153,12 @@ def plot_upload_push_timediff(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("time span (days)", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'timediff_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_unittest_ratio(reports):
+def plot_unittest_ratio(res_dir, reports):
     data = [r.unittest_ratio() for r in reports.values()]
     num_tested = [r.num_unittested() for r in reports.values()]
 
@@ -172,10 +177,12 @@ def plot_unittest_ratio(reports):
         b.set_facecolor(color[c])
         ax.text(b.get_x() + b.get_width()/2, 1.01 * height, '{}'.format(num_tested[c]))
 
-    plt.show()
+    image_name = res_dir + '/' + 'utestratio_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_lines_modified(reports):
+def plot_lines_modified(res_dir, reports):
     data = [r.lines_modified() for r in reports.values()]
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
@@ -185,10 +192,12 @@ def plot_lines_modified(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'locmod_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_lines_removed(reports):
+def plot_lines_removed(res_dir, reports):
     data = [r.lines_removed() for r in reports.values()]
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
@@ -198,10 +207,12 @@ def plot_lines_removed(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'locrm_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_lines_added(reports):
+def plot_lines_added(res_dir, reports):
     data = [r.lines_added() for r in reports.values()]
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
@@ -211,7 +222,9 @@ def plot_lines_added(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'locadd_vs_class.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
 def clean_null(df):
@@ -220,12 +233,14 @@ def clean_null(df):
     return cleandf
 
 
-def pairwise_corr_plot(df):
+def pairwise_corr_plot(res_dir, df):
     attrs = ['lines_modified', 'lines_added', 'lines_removed', 'num_comments', 'num_revisions',
              'upload_push_timediff']
 
     scatter_matrix(df[attrs], figsize=FIG_SIZE)
-    plt.show()
+    image_name = res_dir + '/' + 'pairwise_scatter.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
 def format_ax_lab(key, unit):
@@ -234,14 +249,17 @@ def format_ax_lab(key, unit):
     return "{} ({})".format(key, unit)
 
 
-def scatter_plot(key1, unit1, key2, unit2, df):
+def scatter_plot(res_dir, key1, unit1, key2, unit2, df):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
     ax.scatter(df[key1], df[key2])
     xlab = format_ax_lab(key1, unit1)
     ylab = format_ax_lab(key2, unit2)
     ax.set_xlabel(xlab, fontsize=XLAB_SIZE)
     ax.set_ylabel(ylab, fontsize=YLAB_SIZE)
-    plt.show()
+
+    image_name = res_dir + '/' + '_'.join([key1, key2]) + '.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
 def get_unittested_vs_non(df):
@@ -260,7 +278,7 @@ def get_unittested_vs_non(df):
     return reports
 
 
-def plot_ifunittested_timediff(reports):
+def plot_ifunittested_timediff(res_dir, reports):
     assert(reports is not None and len(reports) != 0)
     data = [r.upush_timediff() for r in reports.values()]
 
@@ -271,10 +289,12 @@ def plot_ifunittested_timediff(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("days", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'timediff_vs_utest.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_ifunittested_num_comments(reports):
+def plot_ifunittested_num_comments(res_dir, reports):
     assert(reports is not None and len(reports) != 0)
     data = [r.num_comments() for r in reports.values()]
 
@@ -285,10 +305,12 @@ def plot_ifunittested_num_comments(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("num of comments", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'comments_vs_utest.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
-def plot_ifunittested_num_revisions(reports):
+def plot_ifunittested_num_revisions(res_dir, reports):
     assert(reports is not None and len(reports) != 0)
     data = [r.num_revisions() for r in reports.values()]
 
@@ -299,7 +321,9 @@ def plot_ifunittested_num_revisions(reports):
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("num of revisions", fontsize=YLAB_SIZE)
 
-    plt.show()
+    image_name = res_dir + '/' + 'revisions_vs_utest.png'
+    plt.savefig(image_name)
+    plt.close()
 
 
 def preprocess(res_dir, df):
@@ -322,43 +346,43 @@ def preprocess(res_dir, df):
     return df
 
 
-def get_scatter_plots(df):
-    pairwise_corr_plot(df)
+def get_scatter_plots(res_dir, df):
+    pairwise_corr_plot(res_dir, df)
 
-    scatter_plot('lines_modified', 'LOC', 'num_comments', '', df)
-    scatter_plot('lines_modified', 'LOC', 'num_revisions', '', df)
-    scatter_plot('lines_modified', 'LOC', 'upload_push_timediff', 'days', df)
-    scatter_plot('lines_added', 'LOC', 'num_comments', '', df)
-    scatter_plot('num_revisions', '', 'upload_push_timediff', 'days', df)
-    scatter_plot('num_comments', '', 'upload_push_timediff', 'days', df)
-    scatter_plot('num_comments', '', 'num_revisions', '', df)
+    scatter_plot(res_dir, 'lines_modified', 'LOC', 'num_comments', '', df)
+    scatter_plot(res_dir, 'lines_modified', 'LOC', 'num_revisions', '', df)
+    scatter_plot(res_dir, 'lines_modified', 'LOC', 'upload_push_timediff', 'days', df)
+    scatter_plot(res_dir, 'lines_added', 'LOC', 'num_comments', '', df)
+    scatter_plot(res_dir, 'num_revisions', '', 'upload_push_timediff', 'days', df)
+    scatter_plot(res_dir, 'num_comments', '', 'upload_push_timediff', 'days', df)
+    scatter_plot(res_dir, 'num_comments', '', 'num_revisions', '', df)
     return
 
 
-def get_class_plots(df):
+def get_class_plots(res_dir, df):
     reports = to_category_reports(df)
 
     # box plot for num_revisions for each category
-    plot_num_revisions(reports)
+    plot_num_revisions(res_dir, reports)
     # box plot for upload -> push timediff
-    plot_upload_push_timediff(reports)
+    plot_upload_push_timediff(res_dir, reports)
     # bar chart for unittest ratio
-    plot_unittest_ratio(reports)
+    plot_unittest_ratio(res_dir, reports)
     # lines_modified for each category
-    plot_lines_modified(reports)
-    plot_lines_added(reports)
-    plot_lines_removed(reports)
+    plot_lines_modified(res_dir, reports)
+    plot_lines_added(res_dir, reports)
+    plot_lines_removed(res_dir, reports)
     return
 
 
-def get_unit_plots(df):
+def get_unit_plots(res_dir, df):
     reports = get_unittested_vs_non(df)
     # upload_push_timediff vs. unittested/non_unittested
-    plot_ifunittested_timediff(reports)
+    plot_ifunittested_timediff(res_dir, reports)
     # num_comments vs. unittested/non_unittested
-    plot_ifunittested_num_comments(reports)
+    plot_ifunittested_num_comments(res_dir, reports)
     # num_revisions vs. unittested/non_unittested
-    plot_ifunittested_num_revisions(reports)
+    plot_ifunittested_num_revisions(res_dir, reports)
     return
 
 
@@ -380,13 +404,13 @@ def main():
 
     # ====== START ANALYSIS ======
     # scatter plot
-    get_scatter_plots(df)
+    get_scatter_plots(args.res_dir, df)
 
     # distribution across manual classification category
-    get_class_plots(df)
+    get_class_plots(args.res_dir, df)
 
     # distribution in unit test vs not unit tested
-    get_unit_plots(df)
+    get_unit_plots(args.res_dir, df)
 
     # get box plots
     for col in BOX_COLUMNS:
