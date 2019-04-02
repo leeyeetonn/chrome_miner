@@ -205,6 +205,9 @@ def main():
     # read extracted stats
     df = read_input(args.infile)
 
+    # drop "OTHER", these are all just git merges
+    df = df[df['final_category'] != 'OTHER']
+
     # remove issue reports that are not accessible
     df = clean_null(args.res_dir, df)
 
