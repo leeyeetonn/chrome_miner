@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-
-
 class IssueReport:
     def __init__(self, report_type, data):
         self.type = report_type    # type include RFE, BUG, REFAC
@@ -10,6 +7,12 @@ class IssueReport:
     def median_upush_timediff(self):
         series = self.data['upload_push_timediff']
         return series.median()
+
+    # number of instances that were unittested
+    def num_unittested(self):
+        col = self.data['is_unittested']
+        num = col.value_counts()[True]
+        return num
 
     # get the ratio of unit-tested commits
     def unittest_ratio(self):
@@ -24,3 +27,19 @@ class IssueReport:
     # get time difference between upload and push
     def upush_timediff(self):
         return self.data['upload_push_timediff']
+
+    # number of lines modified
+    def lines_modified(self):
+        return self.data['lines_modified']
+
+    # number of lines removed
+    def lines_removed(self):
+        return self.data['lines_removed']
+
+    # number of lines added
+    def lines_added(self):
+        return self.data['lines_added']
+
+    # number of comments
+    def num_comments(self):
+        return self.data['num_comments']
