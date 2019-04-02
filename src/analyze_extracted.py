@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import pandas as pd
+import numpy as np
 import argparse
 import matplotlib.pyplot as plt
 import os
@@ -12,6 +13,9 @@ from issue_report import IssueReport
 BOX_COLUMNS = ['lines_added', 'lines_removed', 'lines_modified', 'num_revisions',
                'num_msg', 'num_unresolved_comments', 'upload_push_timediff']
 
+XLAB_SIZE = 14
+YLAB_SIZE = 14
+FIG_SIZE = (16, 9)
 
 def test_fexist(fpath):
     if os.path.exists(fpath):
@@ -70,8 +74,8 @@ def get_time_delta(series1, series2):
         time_value_2 = series2.loc[index]
         time_obj_2 = datetime.strptime(time_value_2, time_format)
 
-        # time difference in minutes
-        timediff = abs(time_obj_1 - time_obj_2).total_seconds()/60
+        # time difference in days
+        timediff = abs(time_obj_1 - time_obj_2).total_seconds()/60/60/24
         # round timediff to int
         time_diff_list.append(round(timediff))
     return time_diff_list
@@ -82,19 +86,106 @@ def get_lines_modified(df):
     return lines_modified
 
 
-def analyze_each_category(df):
+def to_reports(report_type, df):
+    data = df.loc[df['final_category'] == report_type]
+    reports = IssueReport(report_type, data)
+    return reports
+
+
+def to_category_reports(df):
+    # RFE
+    feature_reports = to_reports('RFE', df)
+    print('RFE median upload -> push timediff = ', feature_reports.median_upush_timediff())
+    print('RFE unit test ratio = ', feature_reports.unittest_ratio())
+
     # BUG category
-    type_bug_data = df.loc[df['final_category'] == 'BUG']
-    bug_reports = IssueReport('Bug', type_bug_data)
+    bug_reports = to_reports('BUG', df)
 
     print('BUG median upload -> push timediff = ', bug_reports.median_upush_timediff())
     print('BUG unit test ratio = ', bug_reports.unittest_ratio())
 
-    # RFE category
-    type_feature_data = df.loc[df['final_category'] == 'RFE']
-    feature_reports = IssueReport('RFE', type_feature_data)
-    print('RFE median upload -> push timediff = ', feature_reports.median_upush_timediff())
-    print('RFE unit test ratio = ', feature_reports.unittest_ratio())
+    # REFAC category
+    refac_reports = to_reports('REFAC', df)
+    print('REFAC median upload -> push timediff = ', refac_reports.median_upush_timediff())
+    print('REFAC unit test ratio = ', refac_reports.unittest_ratio())
+
+    # IMPR category
+    impr_reports = to_reports('IMPR', df)
+    print('IMPR median upload -> push timediff = ', impr_reports.median_upush_timediff())
+    print('IMPR unit test ratio = ', impr_reports.unittest_ratio())
+
+    reports = {
+        "RFE": feature_reports,
+        "BUG": bug_reports,
+        "REFAC": refac_reports,
+        "IMPR": impr_reports
+    }
+
+    return reports
+
+
+def plot_num_revisions(reports):
+    data = [
+        reports['RFE'].num_revisions(),
+        reports['BUG'].num_revisions(),
+        reports['REFAC'].num_revisions(),
+        reports['IMPR'].num_revisions()
+    ]
+
+    fig, ax = plt.subplots(figsize=FIG_SIZE)
+
+    bp = ax.boxplot(data)
+    ax.set_title('Number of revisions for each category')
+    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
+    ax.set_ylabel("number of revisions", fontsize=YLAB_SIZE)
+
+    plt.show()
+
+
+def plot_upload_push_timediff(reports):
+    data = [
+        reports['RFE'].upush_timediff(),
+        reports['BUG'].upush_timediff(),
+        reports['REFAC'].upush_timediff(),
+        reports['IMPR'].upush_timediff()
+    ]
+
+    ymax = max([i.max() for i in data])
+    fig, ax = plt.subplots(figsize=FIG_SIZE)
+
+    bp = ax.boxplot(data)
+    ax.set_title('Time to stay in code review')
+    ax.set_yticks(np.arange(0, ymax, 30))
+    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
+    ax.set_ylabel("time span (days)", fontsize=YLAB_SIZE)
+
+    plt.show()
+
+
+def plot_unittest_ratio(reports):
+    data = [
+        reports['RFE'].unittest_ratio(),
+        reports['BUG'].unittest_ratio(),
+        reports['REFAC'].unittest_ratio(),
+        reports['IMPR'].unittest_ratio()
+    ]
+
+    color = ['C0', 'C1', 'C2', 'C3']
+    fig, ax = plt.subplots(figsize=FIG_SIZE)
+    ind = np.arange(len(reports))
+
+    bars = plt.bar(ind, data)
+    ax.set_title('Percentage of unit tested commits in each category')
+    ax.set_xticks(ind)
+    ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
+    ax.set_ylabel("ratio", fontsize=YLAB_SIZE)
+
+    for c, b in enumerate(bars):
+        height = b.get_height()
+        b.set_facecolor(color[c])
+        ax.text(b.get_x() + b.get_width()/3, 1.01 * height, '{}'.format(height))
+
+    plt.show()
 
 
 def clean_null(res_dir, df):
@@ -130,11 +221,22 @@ def main():
     tdelta = get_time_delta(df['time_uploaded'], df['time_pushed'])
     df['upload_push_timediff'] = tdelta
 
+    # aggregated_result.csv will be the final data for all analysis
     res_file_path = args.res_dir + '/' + 'aggregated_result.csv'
     df.to_csv(res_file_path, na_rep='NA')
 
-    # analyze for each category
-    analyze_each_category(df)
+    # START ANALYSIS
+    # plot num_revisions distribution across different category
+    reports = to_category_reports(df)
+
+    # box plot for num_revisions for each category
+    plot_num_revisions(reports)
+
+    # box plot for upload -> push timediff
+    plot_upload_push_timediff(reports)
+
+    # bar chart for unittest ratio
+    plot_unittest_ratio(reports)
 
     # get box plots
     for col in BOX_COLUMNS:
