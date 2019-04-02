@@ -14,9 +14,23 @@ from issue_report import IssueReport
 BOX_COLUMNS = ['lines_added', 'lines_removed', 'lines_modified', 'num_revisions',
                'num_msg', 'num_unresolved_comments', 'upload_push_timediff']
 
-XLAB_SIZE = 14
-YLAB_SIZE = 14
+TITLE_SIZE = 28
+XLAB_SIZE = 25
+YLAB_SIZE = 25
 FIG_SIZE = (16, 9)
+TICK_SIZE = 20
+BAR_NUM_SIZE = 20
+
+CAT_MAP = {'Feature': 'RFE', 'Bug': 'BUG'}
+
+COL_MAP = {'lines_added': 'added LOC for the commit',
+           'lines_removed': 'removed LOC for the commit',
+           'num_revisions': 'number of revisions made before push',
+           'lines_modified': 'lines modified',
+           'num_comments': 'number of comments from reviewers',
+           'upload_push_timediff': 'time diff from upload to push'
+           }
+
 
 def test_fexist(fpath):
     if os.path.exists(fpath):
@@ -46,21 +60,22 @@ def get_rater_relibility(df):
     num_unq = unique_reports.hash.count()
     print('number of unique reports = ', num_unq)
     num_agree = unique_reports['disagreement'].value_counts()[False]
-    return num_agree / num_unq
+    return num_agree / num_unq, unique_reports
 
 
-def make_box_plots(res_dir, series):
-    name = series.name
-    k2, p = stats.normaltest(series)
-    print('For %s :' % name)
-    print(k2, p)
-    fig, ax = plt.subplots()
-    ax.set_title(name)
-    ax.boxplot(series.values)
-    image_name = res_dir + "/" + name + ".png"
-    plt.savefig(image_name)
-    plt.close()
-    return
+#def make_box_plots(res_dir, series):
+#    name = series.name
+#    k2, p = stats.normaltest(series)
+#    print('For %s :' % name)
+#    print(k2, p)
+#    fig, ax = plt.subplots()
+#    ax.set_title(name, fontsize=TITLE_SIZE)
+#    ax.boxplot(series.values)
+#    ax.tick_params(labelsize=TICK_SIZE)
+#    image_name = res_dir + "/" + name + ".png"
+#    plt.savefig(image_name)
+#    plt.close()
+#    return
 
 
 def get_time_delta(series1, series2):
@@ -132,9 +147,10 @@ def plot_num_revisions(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Number of revisions for each category')
+    ax.set_title('Number of revisions for each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("number of revisions", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'revisions_vs_class.png'
     plt.savefig(image_name)
@@ -148,10 +164,11 @@ def plot_upload_push_timediff(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('Time to stay in code review')
+    ax.set_title('Time to stay in code review', fontsize=TITLE_SIZE)
     ax.set_yticks(np.arange(0, ymax, 30))
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("time span (days)", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'timediff_vs_class.png'
     plt.savefig(image_name)
@@ -167,15 +184,16 @@ def plot_unittest_ratio(res_dir, reports):
     ind = np.arange(len(reports))
 
     bars = plt.bar(ind, data)
-    ax.set_title('Percentage of unit tested commits in each category')
+    ax.set_title('Percentage of unit tested commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticks(ind)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("ratio", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     for c, b in enumerate(bars):
         height = b.get_height()
         b.set_facecolor(color[c])
-        ax.text(b.get_x() + b.get_width()/2, 1.01 * height, '{}'.format(num_tested[c]))
+        ax.text(b.get_x() + b.get_width()/2, 1.01 * height, '{}'.format(num_tested[c]), fontsize=BAR_NUM_SIZE)
 
     image_name = res_dir + '/' + 'utestratio_vs_class.png'
     plt.savefig(image_name)
@@ -188,9 +206,10 @@ def plot_lines_modified(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC modified for commits in each category')
+    ax.set_title('LOC modified for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locmod_vs_class.png'
     plt.savefig(image_name)
@@ -203,9 +222,10 @@ def plot_lines_removed(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC removed for commits in each category')
+    ax.set_title('LOC removed for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locrm_vs_class.png'
     plt.savefig(image_name)
@@ -218,9 +238,10 @@ def plot_lines_added(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('LOC added for commits in each category')
+    ax.set_title('LOC added for commits in each category', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("LOC", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'locadd_vs_class.png'
     plt.savefig(image_name)
@@ -244,9 +265,13 @@ def pairwise_corr_plot(res_dir, df):
 
 
 def format_ax_lab(key, unit):
-    if unit == '':
+    if key not in COL_MAP:
+        print('Error: %s not in column name mapping' % key)
         return key
-    return "{} ({})".format(key, unit)
+    key_explain = COL_MAP[key]
+    if unit == '':
+        return key_explain
+    return "{} ({})".format(key_explain, unit)
 
 
 def scatter_plot(res_dir, key1, unit1, key2, unit2, df):
@@ -256,6 +281,7 @@ def scatter_plot(res_dir, key1, unit1, key2, unit2, df):
     ylab = format_ax_lab(key2, unit2)
     ax.set_xlabel(xlab, fontsize=XLAB_SIZE)
     ax.set_ylabel(ylab, fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + '_'.join([key1, key2]) + '.png'
     plt.savefig(image_name)
@@ -285,9 +311,10 @@ def plot_ifunittested_timediff(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('time span from upload to push for unittested and non-unittested commits')
+    ax.set_title('time span from upload to push for unittested and non-unittested commits', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("days", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'timediff_vs_utest.png'
     plt.savefig(image_name)
@@ -301,9 +328,10 @@ def plot_ifunittested_num_comments(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('number of comments for unittested and non-unittested commits')
+    ax.set_title('Number of comments for unittested and non-unittested commits', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("num of comments", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'comments_vs_utest.png'
     plt.savefig(image_name)
@@ -317,9 +345,10 @@ def plot_ifunittested_num_revisions(res_dir, reports):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bp = ax.boxplot(data)
-    ax.set_title('number of revisions for unittested and non-unittested commits')
+    ax.set_title('Number of revisions for unittested and non-unittested commits', fontsize=TITLE_SIZE)
     ax.set_xticklabels(reports.keys(), fontsize=XLAB_SIZE)
     ax.set_ylabel("num of revisions", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
 
     image_name = res_dir + '/' + 'revisions_vs_utest.png'
     plt.savefig(image_name)
@@ -386,6 +415,86 @@ def get_unit_plots(res_dir, df):
     return
 
 
+def plot_orig_category(res_dir, df):
+    assign_cats = df['assigned_category'].value_counts()
+    cat_index = assign_cats.index
+    data = [assign_cats.loc[c] for c in cat_index]
+
+    color = ['C0', 'C1', 'C2', 'C3', 'C4']
+    color = color[0:len(assign_cats)]
+
+    fig, ax = plt.subplots(figsize=FIG_SIZE)
+    ind = np.arange(len(assign_cats))
+
+    bars = plt.bar(ind, data)
+    ax.set_title('Number of issue reports in each assigned category', fontsize=TITLE_SIZE)
+    ax.set_xticks(ind)
+    ax.set_xticklabels(cat_index, fontsize=XLAB_SIZE)
+    ax.set_ylabel("number of issue reports", fontsize=YLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
+
+    for c, b in enumerate(bars):
+        height = b.get_height()
+        b.set_facecolor(color[c])
+        ax.text(b.get_x() + b.get_width() / 2, 1.01 * height, '{}'.format(height), fontsize=BAR_NUM_SIZE)
+
+    image_name = res_dir + "/" + "assigned_cat.png"
+    plt.savefig(image_name)
+    plt.close()
+    return
+
+
+def plot_misclass_for(cat, right_class, mis_class, res_dir):
+    mis_values = mis_class['final_category'].value_counts()
+    right_values = right_class['final_category'].value_counts()
+    right_name = right_values.index.tolist()[0]
+    cat_index = mis_values.index.tolist()
+    cat_index.append(right_name)
+    cat_index.sort()
+
+    series = pd.concat([right_values, mis_values])
+    raw_counts = [series.loc[i] for i in cat_index]
+    total_counts = sum(raw_counts)
+    perc = [c/total_counts for c in raw_counts]
+
+    fig, ax = plt.subplots(figsize=FIG_SIZE)
+    ind = np.arange(len(cat_index))
+
+    color = ['C0', 'C1', 'C2', 'C3', 'C4']
+    color = color[0:len(cat_index)]
+
+    # horizontal bar
+    bars = plt.barh(ind, perc)
+    ax.set_title('Reports originally filled as {}'.format(cat), fontsize=TITLE_SIZE)
+    ax.set_yticks(ind)
+    ax.set_yticklabels(cat_index, fontsize=YLAB_SIZE)
+    ax.set_xlabel("classification ratio", fontsize=XLAB_SIZE)
+    ax.tick_params(labelsize=TICK_SIZE)
+
+    for c, b in enumerate(bars):
+        width = b.get_width()
+        b.set_facecolor(color[c])
+        ax.text(width * 1.01, c, '%d' % raw_counts[c], fontsize=BAR_NUM_SIZE)
+    image_name = res_dir + "/" + cat + "_misclass_cat.png"
+    plt.savefig(image_name)
+    plt.close()
+
+
+def plot_misclassification(res_dir, df):
+    assign_cats_index = df['assigned_category'].value_counts().index
+    reports = {}
+    for cat in assign_cats_index:
+        reports[cat] = to_reports('assigned_category', cat, df)
+        right_class, mis_class = reports[cat].report_misclass(CAT_MAP)
+        if right_class is None or mis_class is None:
+            print('Warning: skipping %s due to missing mapping' % cat)
+            continue
+        right_perc = right_class.size / (right_class.size + mis_class.size)
+        mis_perc = mis_class.size / (right_class.size + mis_class.size)
+
+        plot_misclass_for(cat, right_class, mis_class, res_dir)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Read an extracted csv and analyze it')
     parser.add_argument('infile', type=str, help='input csv containing extracted stats')
@@ -399,10 +508,16 @@ def main():
     df = preprocess(args.res_dir, df)
 
     # get unique issue reports and calculate inter-rater reliability
-    agree_perc = get_rater_relibility(df)
+    agree_perc, unique_reports = get_rater_relibility(df)
     print('Percentage of agreement: %.4f' % agree_perc)
 
     # ====== START ANALYSIS ======
+    # get original distribution of assigned feature
+    plot_orig_category(args.res_dir, unique_reports)
+
+    # get mis-classifications
+    plot_misclassification(args.res_dir, unique_reports)
+
     # scatter plot
     get_scatter_plots(args.res_dir, df)
 
@@ -413,11 +528,11 @@ def main():
     get_unit_plots(args.res_dir, df)
 
     # get box plots
-    for col in BOX_COLUMNS:
-        if col not in df.columns:
-            print('Error: requested column "%s" not in data' % col)
-            continue
-        make_box_plots(args.res_dir, df[col])
+    #for col in BOX_COLUMNS:
+    #    if col not in df.columns:
+    #        print('Error: requested column "%s" not in data' % col)
+    #        continue
+    #    make_box_plots(args.res_dir, df[col])
 
 
 if __name__ == '__main__':

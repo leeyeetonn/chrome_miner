@@ -43,3 +43,15 @@ class IssueReport:
     # number of comments
     def num_comments(self):
         return self.data['num_comments']
+
+    def report_misclass(self, mapping):
+        if self.type not in mapping:
+            print('Error: assigned type not in mapping')
+            return None, None
+
+        # get the corresponding manual classification category
+        man_cat = mapping[self.type]
+        mis_class = self.data[self.data['final_category'] != man_cat]
+        right_class = self.data[self.data['final_category'] == man_cat]
+
+        return right_class, mis_class
