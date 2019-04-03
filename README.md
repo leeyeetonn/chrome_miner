@@ -10,12 +10,12 @@
 
 ### Run Extraction
 ```sh
-python src/get_stat.py <input_csv> <repo_path> <output_name>
+python get_stat.py <input_csv> <repo_path> <output_name>
 ```
 
 ### Run Analysis
 ```sh
-python src/analyze_extracted.py data/all_commits_extracted.csv result
+python analyze_extracted.py ../data/all_commits_extracted.csv ../result
 ```
 The generated box plots and aggregated data will be stored in `result` folder
 
@@ -28,8 +28,3 @@ The generated box plots and aggregated data will be stored in `result` folder
 To develop more analysis method, add methods to `class IssueReport`.
 This class can be used to separate different categories (i.e. BUG, RFE, etc.)
 OR to separate `is_unittested = True` from `is_unittested = False`, etc.
-
-
-### TODO
-2. docker for reproducibility (probably unneeded, but a nice touch if we have time)
-3. current stats are for selected bug fixing commits; 
