@@ -464,6 +464,7 @@ def plot_misclass_for(cat, right_class, mis_class, res_dir):
     bars = plt.barh(ind, perc)
     #ax.set_title('Reports originally filled as {}'.format(cat), fontsize=TITLE_SIZE)
     ax.set_yticks(ind)
+    ax.set_xticks(np.arange(0, 1.1, 0.1))
     ax.set_yticklabels(cat_index, fontsize=YLAB_SIZE)
     ax.set_xlabel("Classification Ratio", fontsize=XLAB_SIZE)
     ax.tick_params(labelsize=TICK_SIZE)
